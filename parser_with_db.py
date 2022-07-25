@@ -45,6 +45,7 @@ class DataBase():
             self.parsed_flats_list.append((header,place, price, rooms, square,picture, link_to_ad))
         self.parsed_flats_list
 
+
     def check_for_new_flat(self):
         self.parse_flats()
 
@@ -57,6 +58,7 @@ class DataBase():
         for flat in self.parsed_flats_list:
             if flat not in flats_in_db_list:
                 flats_to_add.append(flat)
+                
         if flats_to_add:
             self.add_new_flats_to_db(flats_to_add)
         flats_links_to_delete = []

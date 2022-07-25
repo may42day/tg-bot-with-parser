@@ -2,15 +2,11 @@ import telebot
 import sqlite3
 import time
 
-
-
 bot_token = '5193323572:AAGhIY6dO1N1lhdOx1yLGE5YgLFVVHVU8o0'
 bot = telebot.TeleBot(bot_token, parse_mode='HTML')
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    if message.text == "Привет":
-        bot.send_message(message.from_user.id, "Привет, чем я могу тебе помочь?")
     if message.text.lower() == "/start":
         add_user_into_db(message.from_user.id)
         bot.send_message(message.from_user.id, f"Твой id добавлен {message.from_user.id}")
@@ -22,11 +18,10 @@ def add_user_into_db(user_id):
 
     if cur.execute(f"SELECT EXISTS(SELECT 1 FROM users WHERE user_id={user_id})").fetchall()[0][0] == 0:
         cur.execute(f"INSERT INTO users (user_id) VALUES ({user_id})")
-        print('user added. User id:', user_id)
-    else:
-        print('user not added. User id:', user_id)
+
     conn.commit()
     conn.close()  
+
 
 def creating_users_DB():
     conn = sqlite3.connect('users_db.db')
@@ -39,7 +34,6 @@ def creating_users_DB():
     conn.commit()
     conn.close()
 
-creating_users_DB()
 
 def message_new_flats_for_all_users(flats_list):
     conn = sqlite3.connect('users_db.db')
@@ -48,7 +42,6 @@ def message_new_flats_for_all_users(flats_list):
 
     for user in all_users_list:
         for flat in flats_list:
-            #bot.send_message(user[0], list_item_into_message(flat))
             bot.send_photo(user[0], photo=flat[5], caption=list_item_into_message(flat))
         time.sleep(1)
     conn.commit()
@@ -64,12 +57,15 @@ def list_item_into_message(list_item):
     link = list_item[6]
     return f"<b>{header}</b>\n\nPlace: {place}\nPrice: {price}\n{rooms}, {square}\nlink:{link}"
 
+
 def main():
+    creating_users_DB()
     while True:
         try:
             bot.polling(none_stop=True, interval=0)
         except: 
-            print('Bot is down')
+            print('Bot shutdown')
+
 
 if __name__ == '__main__':
     main()
